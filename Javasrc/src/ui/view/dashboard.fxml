@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="ui.controller.DashboardController">
+    <top>
+        <VBox spacing="8" BorderPane.alignment="CENTER" style="-fx-background-color: #ffffff; -fx-border-color: #e5e7eb; -fx-border-width: 0px 0px 1px 0px;">
+            <padding>
+                <Insets top="12" right="12" bottom="8" left="12"/>
+            </padding>
+            <Label styleClass="header" text="Online Course Enrollment"/>
+            <HBox spacing="8">
+                <Button mnemonicParsing="false" onAction="#onRefreshData" text="Refresh All" styleClass="default"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TabPane fx:id="mainTabPane" tabClosingPolicy="UNAVAILABLE">
+            <tabs>
+                <Tab fx:id="studentsTab" text="Students">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        <HBox spacing="8">
+                            <TextField fx:id="studentNameField" promptText="Student name" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="studentDepartmentField" promptText="Department" HBox.hgrow="ALWAYS"/>
+                            <Button mnemonicParsing="false" onAction="#onRegisterStudent" text="Register Student"/>
+                        </HBox>
+                        <TableView fx:id="studentsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="studentIdColumn" prefWidth="120" text="Student ID"/>
+                                <TableColumn fx:id="studentNameColumn" prefWidth="280" text="Name"/>
+                                <TableColumn fx:id="studentDepartmentColumn" prefWidth="280" text="Department"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <Tab fx:id="coursesTab" text="Courses">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        <HBox fx:id="courseAddBox" spacing="8">
+                            <TextField fx:id="courseNameField" promptText="Course name" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="courseCreditsField" promptText="Credits" prefWidth="110"/>
+                            <Button mnemonicParsing="false" onAction="#onAddCourse" text="Add Course"/>
+                        </HBox>
+                        <TableView fx:id="coursesTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="courseIdColumn" prefWidth="120" text="Course ID"/>
+                                <TableColumn fx:id="courseNameColumn" prefWidth="320" text="Course"/>
+                                <TableColumn fx:id="courseCreditsColumn" prefWidth="120" text="Credits"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <Tab fx:id="enrollmentsTab" text="Enrollments">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        <HBox spacing="8">
+                            <ComboBox fx:id="enrollmentStudentCombo" promptText="Select student" prefWidth="280"/>
+                            <ComboBox fx:id="enrollmentCourseCombo" promptText="Select course" prefWidth="280"/>
+                            <Button mnemonicParsing="false" onAction="#onEnrollStudent" text="Enroll"/>
+                            <Button mnemonicParsing="false" onAction="#onDropEnrollment" text="Drop Selected" styleClass="button-danger"/>
+                        </HBox>
+                        <TableView fx:id="enrollmentsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="enrollmentIdColumn" prefWidth="110" text="Enroll ID"/>
+                                <TableColumn fx:id="enrollmentStudentIdColumn" prefWidth="110" text="Student ID"/>
+                                <TableColumn fx:id="enrollmentStudentNameColumn" prefWidth="180" text="Student"/>
+                                <TableColumn fx:id="enrollmentCourseIdColumn" prefWidth="100" text="Course ID"/>
+                                <TableColumn fx:id="enrollmentCourseNameColumn" prefWidth="180" text="Course"/>
+                                <TableColumn fx:id="enrollmentDateColumn" prefWidth="180" text="Date"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+                <Tab fx:id="instructorsTab" text="Instructors">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        <HBox spacing="8">
+                            <TextField fx:id="instructorNameField" promptText="Instructor name" HBox.hgrow="ALWAYS"/>
+                            <Button mnemonicParsing="false" onAction="#onAddInstructor" text="Add Instructor"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <ComboBox fx:id="instructorAssignCombo" promptText="Select instructor" prefWidth="200"/>
+                            <ComboBox fx:id="instructorCourseCombo" promptText="Select course" prefWidth="200"/>
+                            <Button mnemonicParsing="false" onAction="#onAssignCourseToInstructor" text="Assign Course"/>
+                        </HBox>
+                        <TableView fx:id="instructorsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="instructorIdColumn" prefWidth="120" text="Instructor ID"/>
+                                <TableColumn fx:id="instructorNameColumn" prefWidth="320" text="Name"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <Tab fx:id="departmentsTab" text="Departments">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        <HBox spacing="8">
+                            <TextField fx:id="departmentNameField" promptText="Department name" HBox.hgrow="ALWAYS"/>
+                            <Button mnemonicParsing="false" onAction="#onAddDepartment" text="Add Department"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <ComboBox fx:id="departmentAssignCombo" promptText="Select department" prefWidth="200"/>
+                            <ComboBox fx:id="departmentCourseCombo" promptText="Select course" prefWidth="200"/>
+                            <Button mnemonicParsing="false" onAction="#onAddCourseToDepartment" text="Add Course to Dept"/>
+                        </HBox>
+                        <TableView fx:id="departmentsTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="departmentIdColumn" prefWidth="120" text="Dept ID"/>
+                                <TableColumn fx:id="departmentNameColumn" prefWidth="320" text="Department Name"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <Tab fx:id="schedulesTab" text="Schedules">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        <HBox spacing="8">
+                            <TextField fx:id="scheduleDayField" promptText="Day (e.g. Monday)" HBox.hgrow="ALWAYS"/>
+                            <TextField fx:id="scheduleTimeField" promptText="Time (e.g. 10:00 AM)" HBox.hgrow="ALWAYS"/>
+                            <Button mnemonicParsing="false" onAction="#onAddSchedule" text="Add Schedule"/>
+                        </HBox>
+                        <TableView fx:id="schedulesTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="scheduleIdColumn" prefWidth="120" text="Schedule ID"/>
+                                <TableColumn fx:id="scheduleDayColumn" prefWidth="200" text="Day"/>
+                                <TableColumn fx:id="scheduleTimeColumn" prefWidth="200" text="Time"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+                <Tab fx:id="feesTab" text="Fees">
+                    <VBox spacing="10">
+                        <padding>
+                            <Insets top="12" right="12" bottom="12" left="12"/>
+                        </padding>
+                        <HBox spacing="8">
+                            <ComboBox fx:id="feesStudentCombo" promptText="Select Student" prefWidth="200"/>
+                            <TextField fx:id="feesAmountField" promptText="Amount" prefWidth="100"/>
+                            <TextField fx:id="feesDeadlineField" promptText="Deadline (e.g. 2025-12-31)" HBox.hgrow="ALWAYS"/>
+                            <Button mnemonicParsing="false" onAction="#onAssignFees" text="Assign Fees"/>
+                        </HBox>
+                        <HBox spacing="8">
+                            <Button mnemonicParsing="false" onAction="#onPaySelectedFees" text="Pay Selected Fee" styleClass="default"/>
+                        </HBox>
+                        <TableView fx:id="feesTable" VBox.vgrow="ALWAYS">
+                            <columns>
+                                <TableColumn fx:id="feeIdColumn" prefWidth="80" text="Fee ID"/>
+                                <TableColumn fx:id="feeStudentIdColumn" prefWidth="100" text="Student ID"/>
+                                <TableColumn fx:id="feeAmountColumn" prefWidth="100" text="Amount"/>
+                                <TableColumn fx:id="feeDeadlineColumn" prefWidth="150" text="Deadline"/>
+                                <TableColumn fx:id="feeStatusColumn" prefWidth="120" text="Status"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+                </Tab>
+
+            </tabs>
+        </TabPane>
+    </center>
+</BorderPane>
