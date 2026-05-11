@@ -1,15 +1,15 @@
 package org.example.onlinecourseenrollmentside.service;
 
 import org.example.onlinecourseenrollmentside.model.Student;
-import org.example.onlinecourseenrollmentside.util.FileManager;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class StudentService implements DataService<Student> {
+public class StudentService {
     private final Path filePath;
     private final List<Student> students = new ArrayList<>();
 
@@ -26,37 +26,21 @@ public class StudentService implements DataService<Student> {
         return new ArrayList<>(students);
     }
 
-    @Override
-    public List<Student> getAll() {
-        return new ArrayList<>(students);
-    }
-
-    @Override
     public Optional<Student> findById(int id) {
         return students.stream().filter(s -> s.getStudentId() == id).findFirst();
     }
 
     public boolean addStudent(Student student) {
-        return add(student);
-    }
-
-    @Override
-    public boolean add(Student item) {
-        if (findById(item.getStudentId()).isPresent()) {
+        if (findById(student.getStudentId()).isPresent()) {
             return false;
         }
-        students.add(item);
+        students.add(student);
         save();
         return true;
     }
 
     public boolean deleteStudent(int studentId) {
-        return delete(studentId);
-    }
-
-    @Override
-    public boolean delete(int id) {
-        boolean removed = students.removeIf(s -> s.getStudentId() == id);
+        boolean removed = students.removeIf(s -> s.getStudentId() == studentId);
         if (removed) {
             save();
         }
@@ -64,12 +48,24 @@ public class StudentService implements DataService<Student> {
     }
 
     private void load() {
-        for (String[] parts : FileManager.readCSV(filePath)) {
-            if (parts.length < 2) {
-                continue;
+        try {
+            if (!Files.exists(filePath)) {
+                Files.createDirectories(filePath.getParent());
+                Files.createFile(filePath);
+                return;
             }
-            String name = String.join(",", Arrays.copyOfRange(parts, 1, parts.length));
-            students.add(new Student(Integer.parseInt(parts[0]), name));
+            for (String line : Files.readAllLines(filePath)) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                String[] parts = line.split(",", 2);
+                if (parts.length < 2) {
+                    continue;
+                }
+                students.add(new Student(Integer.parseInt(parts[0]), parts[1]));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load students", e);
         }
     }
 
@@ -77,6 +73,11 @@ public class StudentService implements DataService<Student> {
         List<String> lines = students.stream()
                 .map(s -> s.getStudentId() + "," + s.getName())
                 .toList();
-        FileManager.writeCSV(filePath, lines);
+        try {
+            Files.write(filePath, lines);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to save students", e);
+        }
     }
 }
+

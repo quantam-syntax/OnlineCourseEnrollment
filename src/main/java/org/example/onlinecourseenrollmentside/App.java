@@ -19,7 +19,7 @@ import java.net.URL;
 public class App extends Application {
     public static String currentRole;
     public static Student currentStudent;
-// application startup and service wiring  ---- 
+
     public static final StudentService studentService = new StudentService();
     public static final InstructorService instructorService = new InstructorService();
     public static final CourseService courseService = new CourseService();

@@ -2,11 +2,11 @@ package org.example.onlinecourseenrollmentside.service;
 
 import org.example.onlinecourseenrollmentside.model.Course;
 import org.example.onlinecourseenrollmentside.model.Enrollment;
-import org.example.onlinecourseenrollmentside.util.FileManager;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -122,17 +122,27 @@ public class EnrollmentService {
     }
 
     private void load() {
-        for (String[] parts : FileManager.readCSV(filePath)) {
-            if (parts.length < 5) {
-                continue;
+        try {
+            if (!Files.exists(filePath)) {
+                Files.createDirectories(filePath.getParent());
+                Files.createFile(filePath);
+                return;
             }
-            int n = parts.length;
-            int studentId = Integer.parseInt(parts[0]);
-            int courseId = Integer.parseInt(parts[1]);
-            boolean paid = Boolean.parseBoolean(parts[n - 1]);
-            double fee = Double.parseDouble(parts[n - 2]);
-            String title = String.join(",", Arrays.copyOfRange(parts, 2, n - 2));
-            enrollments.add(new Enrollment(studentId, courseId, title, fee, paid));
+            for (String line : Files.readAllLines(filePath)) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                String[] parts = line.split(",", 5);
+                enrollments.add(new Enrollment(
+                        Integer.parseInt(parts[0]),
+                        Integer.parseInt(parts[1]),
+                        parts[2],
+                        Double.parseDouble(parts[3]),
+                        Boolean.parseBoolean(parts[4])
+                ));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load enrollments", e);
         }
     }
 
@@ -140,6 +150,11 @@ public class EnrollmentService {
         List<String> lines = enrollments.stream()
                 .map(e -> e.getStudentId() + "," + e.getCourseId() + "," + e.getCourseTitle() + "," + e.getFee() + "," + e.isPaid())
                 .toList();
-        FileManager.writeCSV(filePath, lines);
+        try {
+            Files.write(filePath, lines);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to save enrollments", e);
+        }
     }
 }
+

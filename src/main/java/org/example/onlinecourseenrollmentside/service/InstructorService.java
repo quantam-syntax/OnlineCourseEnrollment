@@ -1,15 +1,15 @@
 package org.example.onlinecourseenrollmentside.service;
 
 import org.example.onlinecourseenrollmentside.model.Instructor;
-import org.example.onlinecourseenrollmentside.util.FileManager;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-public class InstructorService implements DataService<Instructor> {
+public class InstructorService {
     private final Path filePath;
     private final List<Instructor> instructors = new ArrayList<>();
 
@@ -26,37 +26,21 @@ public class InstructorService implements DataService<Instructor> {
         return new ArrayList<>(instructors);
     }
 
-    @Override
-    public List<Instructor> getAll() {
-        return new ArrayList<>(instructors);
-    }
-
-    @Override
     public Optional<Instructor> findById(int id) {
         return instructors.stream().filter(i -> i.getInstructorId() == id).findFirst();
     }
 
     public boolean addInstructor(Instructor instructor) {
-        return add(instructor);
-    }
-
-    @Override
-    public boolean add(Instructor item) {
-        if (findById(item.getInstructorId()).isPresent()) {
+        if (findById(instructor.getInstructorId()).isPresent()) {
             return false;
         }
-        instructors.add(item);
+        instructors.add(instructor);
         save();
         return true;
     }
 
     public boolean deleteInstructor(int instructorId) {
-        return delete(instructorId);
-    }
-
-    @Override
-    public boolean delete(int id) {
-        boolean removed = instructors.removeIf(i -> i.getInstructorId() == id);
+        boolean removed = instructors.removeIf(i -> i.getInstructorId() == instructorId);
         if (removed) {
             save();
         }
@@ -64,12 +48,24 @@ public class InstructorService implements DataService<Instructor> {
     }
 
     private void load() {
-        for (String[] parts : FileManager.readCSV(filePath)) {
-            if (parts.length < 2) {
-                continue;
+        try {
+            if (!Files.exists(filePath)) {
+                Files.createDirectories(filePath.getParent());
+                Files.createFile(filePath);
+                return;
             }
-            String name = String.join(",", Arrays.copyOfRange(parts, 1, parts.length));
-            instructors.add(new Instructor(Integer.parseInt(parts[0]), name));
+            for (String line : Files.readAllLines(filePath)) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                String[] parts = line.split(",", 2);
+                if (parts.length < 2) {
+                    continue;
+                }
+                instructors.add(new Instructor(Integer.parseInt(parts[0]), parts[1]));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load instructors", e);
         }
     }
 
@@ -77,6 +73,12 @@ public class InstructorService implements DataService<Instructor> {
         List<String> lines = instructors.stream()
                 .map(i -> i.getInstructorId() + "," + i.getName())
                 .toList();
-        FileManager.writeCSV(filePath, lines);
+        try {
+            Files.write(filePath, lines);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to save instructors", e);
+        }
     }
 }
+
+

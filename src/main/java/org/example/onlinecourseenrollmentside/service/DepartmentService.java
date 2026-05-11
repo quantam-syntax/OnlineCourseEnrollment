@@ -3,8 +3,9 @@ package org.example.onlinecourseenrollmentside.service;
 import org.example.onlinecourseenrollmentside.model.Course;
 import org.example.onlinecourseenrollmentside.model.Department;
 import org.example.onlinecourseenrollmentside.model.Instructor;
-import org.example.onlinecourseenrollmentside.util.FileManager;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -118,15 +119,28 @@ public class DepartmentService {
     }
 
     private void load() {
-        for (String[] parts : FileManager.readCSV(filePath)) {
-            if (parts.length < 3) {
-                continue;
+        try {
+            if (!Files.exists(filePath)) {
+                Files.createDirectories(filePath.getParent());
+                Files.createFile(filePath);
+                return;
             }
-            departments.add(new Department(
-                    parts[0],
-                    parseIds(parts[1]),
-                    parseIds(parts[2])
-            ));
+            for (String line : Files.readAllLines(filePath)) {
+                if (line.isBlank()) {
+                    continue;
+                }
+                String[] parts = line.split(",", -1);
+                if (parts.length < 3) {
+                    continue;
+                }
+                departments.add(new Department(
+                        parts[0],
+                        parseIds(parts[1]),
+                        parseIds(parts[2])
+                ));
+            }
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to load departments", e);
         }
     }
 
@@ -151,6 +165,12 @@ public class DepartmentService {
         List<String> lines = departments.stream()
                 .map(d -> d.getName() + "," + joinIds(d.getCourseIds()) + "," + joinIds(d.getInstructorIds()))
                 .toList();
-        FileManager.writeCSV(filePath, lines);
+        try {
+            Files.write(filePath, lines);
+        } catch (IOException e) {
+            throw new IllegalStateException("Failed to save departments", e);
+        }
     }
 }
+
+
